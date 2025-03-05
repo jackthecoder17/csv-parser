@@ -487,6 +487,17 @@ function Units() {
     []
   );
 
+  const handleRoomsInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const value = (e.target as HTMLInputElement).value;
+        handleRoomsChange(value);
+      }
+    },
+    [handleRoomsChange]
+  );
+
   return (
     <div className="space-y-6 w-full">
       <h1 className="text-3xl font-bold">Properties</h1>
@@ -549,25 +560,30 @@ function Units() {
                   {!filtersInitialized ? (
                     <Skeleton className="h-10 w-full" />
                   ) : (
-                    <Select
-                      value={selectedRooms}
-                      onValueChange={handleRoomsChange}
-                      disabled={
-                        isPending || loading || roomOptions.length === 0
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select rooms" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white z-50">
-                        <SelectItem value="any_rooms">Any number</SelectItem>
-                        {roomOptions.map((room) => (
-                          <SelectItem key={room} value={room}>
-                            {room}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="relative">
+                      <Input 
+                        placeholder="Any number"
+                        value={selectedRooms}
+                        type="number"
+                        min="0"
+                        onKeyDown={handleRoomsInputKeyDown}
+                        onBlur={(e) => handleRoomsChange(e.target.value)}
+                        onChange={(e) => setSelectedRooms(e.target.value)}
+                        className="pr-8"
+                        disabled={isPending || loading || roomOptions.length === 0}
+                      />
+                      <Button 
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-2"
+                        onClick={() => handleRoomsChange(selectedRooms)}
+                        disabled={isPending || loading}
+                      >
+                        <Search className="h-4 w-4" />
+                        <span className="sr-only">Search</span>
+                      </Button>
+                    </div>
                   )}
                 </div>
 
@@ -871,7 +887,7 @@ function Units() {
                 <SelectTrigger className="w-full sm:w-[120px]">
                   <SelectValue placeholder={`Page ${page}`} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white z-50">
                   {Array.from({ length: maxPage }, (_, i) => i + 1).map((p) => (
                     <SelectItem key={p} value={p.toString()}>
                       Page {p}
