@@ -1,6 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-
-import { useState, useEffect, useTransition, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useTransition,
+  useCallback,
+  useRef,
+  Suspense,
+} from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { PropertyUnit } from "@/lib/csv-parser";
 import DashboardLayout from "@/components/dashboard/layout";
@@ -26,7 +33,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -79,7 +85,7 @@ const ClientOnlySlider = ({
   );
 };
 
-export default function UnitsPage() {
+function Units() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -463,29 +469,6 @@ export default function UnitsPage() {
     }
   }, [fetchProperties, filtersInitialized, searchParams]);
 
-  // Create display values with safety checks
-  const getPropertyValue = (
-    property: PropertyUnit,
-    field: string,
-    type: string = ""
-  ): React.ReactNode => {
-    const value = property[field];
-
-    if (value === undefined || value === null) {
-      return <span className="text-gray-400">N/A</span>;
-    }
-
-    if (field.toLowerCase().includes("price")) {
-      return `$${Number(value).toLocaleString()}`;
-    }
-
-    if (typeof value === "object") {
-      return JSON.stringify(value);
-    }
-
-    return value;
-  };
-
   // Use consistent keys for property rows to avoid hydration mismatches
   const getPropertyKey = useCallback(
     (property: PropertyUnit, index: number) => {
@@ -505,412 +488,410 @@ export default function UnitsPage() {
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Properties</h1>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Properties</h1>
 
-        <div className="grid gap-6">
-          {/* Search and Filters */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Search & Filter</CardTitle>
-              <CardDescription>
-                Find properties by various criteria
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {/* Search box */}
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search properties..."
-                    className="pl-8"
-                    value={search}
-                    onChange={handleSearchChange}
-                    disabled={isPending || loading}
-                  />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-                  {/* Location filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Location</label>
-                    {!filtersInitialized ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      <Select
-                        value={selectedLocation}
-                        onValueChange={handleLocationChange}
-                        disabled={
-                          isPending || loading || locations.length === 0
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select location" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="any_location">
-                            Any location
-                          </SelectItem>
-                          {locations.map((location) => (
-                            <SelectItem key={location} value={location}>
-                              {location}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-
-                  {/* Rooms filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Bedrooms</label>
-                    {!filtersInitialized ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      <Select
-                        value={selectedRooms}
-                        onValueChange={handleRoomsChange}
-                        disabled={
-                          isPending || loading || roomOptions.length === 0
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select rooms" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="any_rooms">Any number</SelectItem>
-                          {roomOptions.map((room) => (
-                            <SelectItem key={room} value={room}>
-                              {room}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-
-                  {/* Unit Type filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Property Type</label>
-                    {!filtersInitialized ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      <Select
-                        value={selectedUnitType}
-                        onValueChange={handleUnitTypeChange}
-                        disabled={
-                          isPending || loading || unitTypes.length === 0
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="any_type">Any type</SelectItem>
-                          {unitTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-
-                  {/* Status filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Status</label>
-                    {!filtersInitialized ? (
-                      <Skeleton className="h-10 w-full" />
-                    ) : (
-                      <Select
-                        value={selectedStatus}
-                        onValueChange={handleStatusChange}
-                        disabled={
-                          isPending || loading || statusOptions.length === 0
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="any_status">Any status</SelectItem>
-                          {statusOptions.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-
-                  {/* Price range filter */}
-                  <div className="space-y-2 sm:col-span-2">
-                    <div className="flex justify-between">
-                      <label className="text-sm font-medium">Price range</label>
-                      <span className="text-sm text-muted-foreground">
-                        ${minPrice.toLocaleString()} - $
-                        {maxPrice.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="h-8">
-                      {!filtersInitialized ? (
-                        <Skeleton className="h-4 w-full" />
-                      ) : (
-                        <ClientOnlySlider
-                          value={[minPrice, maxPrice]}
-                          min={0}
-                          max={20000000}
-                          step={10000}
-                          onChange={handlePriceChange}
-                          onCommit={handlePriceCommit}
-                          disabled={isPending || loading}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Area range filter */}
-                  <div className="space-y-2 sm:col-span-2">
-                    <div className="flex justify-between">
-                      <label className="text-sm font-medium">
-                        Area range (m²)
-                      </label>
-                      <span className="text-sm text-muted-foreground">
-                        {minArea.toLocaleString()} - {maxArea.toLocaleString()}{" "}
-                        m²
-                      </span>
-                    </div>
-                    <div className="h-8">
-                      {!filtersInitialized ? (
-                        <Skeleton className="h-4 w-full" />
-                      ) : (
-                        <ClientOnlySlider
-                          value={[minArea, maxArea]}
-                          min={0}
-                          max={500}
-                          step={10}
-                          onChange={handleAreaChange}
-                          onCommit={handleAreaCommit}
-                          disabled={isPending || loading}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Clear filters button */}
-                <div className="flex justify-end">
-                  <Button
-                    variant="outline"
-                    onClick={handleClearFilters}
-                    disabled={
-                      isPending ||
-                      loading ||
-                      (!search &&
-                        !selectedLocation &&
-                        !selectedRooms &&
-                        !selectedUnitType &&
-                        !selectedStatus &&
-                        minPrice === 0 &&
-                        maxPrice === 20000000 &&
-                        minArea === 0 &&
-                        maxArea === 500)
-                    }
-                  >
-                    Clear Filters
-                  </Button>
-                </div>
+      <div className="grid gap-6">
+        {/* Search and Filters */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Search & Filter</CardTitle>
+            <CardDescription>
+              Find properties by various criteria
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {/* Search box */}
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search properties..."
+                  className="pl-8"
+                  value={search}
+                  onChange={handleSearchChange}
+                  disabled={isPending || loading}
+                />
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Results */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Properties</CardTitle>
-                  <CardDescription>
-                    {loading
-                      ? "Loading..."
-                      : `Showing ${properties.length} of ${total} properties`}
-                  </CardDescription>
-                </div>
-                {error && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleRetry}
-                    disabled={loading}
-                    className="flex items-center gap-1"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Retry
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {error ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              ) : loading && !properties.length ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-12 w-full" />
-                  {Array(5)
-                    .fill(0)
-                    .map((_, i) => (
-                      <Skeleton key={i} className="h-12 w-full" />
-                    ))}
-                </div>
-              ) : properties.length === 0 ? (
-                <div className="text-center py-16 px-4">
-                  <h3 className="text-lg font-semibold mb-2">
-                    No properties found
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Try adjusting your filters or clearing them to see more
-                    results.
-                  </p>
-                  <Button onClick={handleClearFilters}>
-                    Clear All Filters
-                  </Button>
-                </div>
-              ) : (
-                <ScrollArea className="w-full rounded-md border">
-                  <div className="relative min-w-full">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[240px]">Unit Name</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Location</TableHead>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Rooms</TableHead>
-                          <TableHead>Area (m²)</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {properties.map((property, index) => (
-                          <TableRow key={getPropertyKey(property, index)}>
-                            <TableCell className="font-medium">
-                              {property["Unit Name"] || (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {/* Make sure to check for both price fields */}
-                              {property["Unit Price"] !== undefined ||
-                              property["Final Total Unit Price"] !==
-                                undefined ? (
-                                `$${Number(
-                                  property["Unit Price"] ||
-                                    property["Final Total Unit Price"]
-                                ).toLocaleString()}`
-                              ) : (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {property["Phase: Phase Name"] || (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {property["Unit Type"] || (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {property["Number of rooms"] !== undefined ? (
-                                property["Number of rooms"]
-                              ) : (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {property["Unit Gross Area"] !== undefined ? (
-                                `${property["Unit Gross Area"]} m²`
-                              ) : (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {property["Unit Status"] || (
-                                <span className="text-gray-400">N/A</span>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                        {loading && (
-                          <TableRow>
-                            <TableCell colSpan={5} className="h-24 text-center">
-                              <div className="flex items-center justify-center space-x-2">
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                                <span>Loading more...</span>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                    <ScrollBar orientation="horizontal" />
-                  </div>
-                </ScrollArea>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-              <div className="flex w-full sm:w-auto justify-between gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page <= 1 || loading || isPending}
-                >
-                  Previous
-                </Button>
-                <div className="text-sm text-muted-foreground flex items-center">
-                  Page {page} of {maxPage}
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page >= maxPage || loading || isPending}
-                >
-                  Next
-                </Button>
-              </div>
-              <div className="w-full sm:w-auto">
-                <Select
-                  value={page.toString()}
-                  onValueChange={(value) => handlePageChange(Number(value))}
-                  disabled={maxPage <= 1 || loading || isPending}
-                >
-                  <SelectTrigger className="w-full sm:w-[120px]">
-                    <SelectValue placeholder={`Page ${page}`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: maxPage }, (_, i) => i + 1).map(
-                      (p) => (
-                        <SelectItem key={p} value={p.toString()}>
-                          Page {p}
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                {/* Location filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Location</label>
+                  {!filtersInitialized ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Select
+                      value={selectedLocation}
+                      onValueChange={handleLocationChange}
+                      disabled={isPending || loading || locations.length === 0}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any_location">
+                          Any location
                         </SelectItem>
-                      )
+                        {locations.map((location) => (
+                          <SelectItem key={location} value={location}>
+                            {location}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Rooms filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Bedrooms</label>
+                  {!filtersInitialized ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Select
+                      value={selectedRooms}
+                      onValueChange={handleRoomsChange}
+                      disabled={
+                        isPending || loading || roomOptions.length === 0
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select rooms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any_rooms">Any number</SelectItem>
+                        {roomOptions.map((room) => (
+                          <SelectItem key={room} value={room}>
+                            {room}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Unit Type filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Property Type</label>
+                  {!filtersInitialized ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Select
+                      value={selectedUnitType}
+                      onValueChange={handleUnitTypeChange}
+                      disabled={isPending || loading || unitTypes.length === 0}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any_type">Any type</SelectItem>
+                        {unitTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Status filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Status</label>
+                  {!filtersInitialized ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Select
+                      value={selectedStatus}
+                      onValueChange={handleStatusChange}
+                      disabled={
+                        isPending || loading || statusOptions.length === 0
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any_status">Any status</SelectItem>
+                        {statusOptions.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Price range filter */}
+                <div className="space-y-2 sm:col-span-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">Price range</label>
+                    <span className="text-sm text-muted-foreground">
+                      ${minPrice.toLocaleString()} - $
+                      {maxPrice.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="h-8">
+                    {!filtersInitialized ? (
+                      <Skeleton className="h-4 w-full" />
+                    ) : (
+                      <ClientOnlySlider
+                        value={[minPrice, maxPrice]}
+                        min={0}
+                        max={20000000}
+                        step={10000}
+                        onChange={handlePriceChange}
+                        onCommit={handlePriceCommit}
+                        disabled={isPending || loading}
+                      />
                     )}
-                  </SelectContent>
-                </Select>
+                  </div>
+                </div>
+
+                {/* Area range filter */}
+                <div className="space-y-2 sm:col-span-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">
+                      Area range (m²)
+                    </label>
+                    <span className="text-sm text-muted-foreground">
+                      {minArea.toLocaleString()} - {maxArea.toLocaleString()} m²
+                    </span>
+                  </div>
+                  <div className="h-8">
+                    {!filtersInitialized ? (
+                      <Skeleton className="h-4 w-full" />
+                    ) : (
+                      <ClientOnlySlider
+                        value={[minArea, maxArea]}
+                        min={0}
+                        max={500}
+                        step={10}
+                        onChange={handleAreaChange}
+                        onCommit={handleAreaCommit}
+                        disabled={isPending || loading}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
-            </CardFooter>
-          </Card>
-        </div>
+
+              {/* Clear filters button */}
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  onClick={handleClearFilters}
+                  disabled={
+                    isPending ||
+                    loading ||
+                    (!search &&
+                      !selectedLocation &&
+                      !selectedRooms &&
+                      !selectedUnitType &&
+                      !selectedStatus &&
+                      minPrice === 0 &&
+                      maxPrice === 20000000 &&
+                      minArea === 0 &&
+                      maxArea === 500)
+                  }
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Results */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Properties</CardTitle>
+                <CardDescription>
+                  {loading
+                    ? "Loading..."
+                    : `Showing ${properties.length} of ${total} properties`}
+                </CardDescription>
+              </div>
+              {error && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRetry}
+                  disabled={loading}
+                  className="flex items-center gap-1"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Retry
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : loading && !properties.length ? (
+              <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                {Array(5)
+                  .fill(0)
+                  .map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+              </div>
+            ) : properties.length === 0 ? (
+              <div className="text-center py-16 px-4">
+                <h3 className="text-lg font-semibold mb-2">
+                  No properties found
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Try adjusting your filters or clearing them to see more
+                  results.
+                </p>
+                <Button onClick={handleClearFilters}>Clear All Filters</Button>
+              </div>
+            ) : (
+              <ScrollArea className="w-full rounded-md border">
+                <div className="relative min-w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[240px]">Unit Name</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Rooms</TableHead>
+                        <TableHead>Area (m²)</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {properties.map((property, index) => (
+                        <TableRow key={getPropertyKey(property, index)}>
+                          <TableCell className="font-medium">
+                            {property["Unit Name"] || (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {/* Make sure to check for both price fields */}
+                            {property["Unit Price"] !== undefined ||
+                            property["Final Total Unit Price"] !== undefined ? (
+                              `$${Number(
+                                property["Unit Price"] ||
+                                  property["Final Total Unit Price"]
+                              ).toLocaleString()}`
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {property["Phase: Phase Name"] || (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {property["Unit Type"] || (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {property["Number of rooms"] !== undefined ? (
+                              property["Number of rooms"]
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {property["Unit Gross Area"] !== undefined ? (
+                              `${property["Unit Gross Area"]} m²`
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {property["Unit Status"] || (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {loading && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="h-24 text-center">
+                            <div className="flex items-center justify-center space-x-2">
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                              <span>Loading more...</span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                  <ScrollBar orientation="horizontal" />
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+            <div className="flex w-full sm:w-auto justify-between gap-2">
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page <= 1 || loading || isPending}
+              >
+                Previous
+              </Button>
+              <div className="text-sm text-muted-foreground flex items-center">
+                Page {page} of {maxPage}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page >= maxPage || loading || isPending}
+              >
+                Next
+              </Button>
+            </div>
+            <div className="w-full sm:w-auto">
+              <Select
+                value={page.toString()}
+                onValueChange={(value) => handlePageChange(Number(value))}
+                disabled={maxPage <= 1 || loading || isPending}
+              >
+                <SelectTrigger className="w-full sm:w-[120px]">
+                  <SelectValue placeholder={`Page ${page}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: maxPage }, (_, i) => i + 1).map((p) => (
+                    <SelectItem key={p} value={p.toString()}>
+                      Page {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
+    </div>
+  );
+}
+
+export default function UnitsPage() {
+  return (
+    <DashboardLayout>
+      <Suspense fallback={<Skeleton className="min-h-screen w-full" />}>
+        <Units />
+      </Suspense>
     </DashboardLayout>
   );
 }
