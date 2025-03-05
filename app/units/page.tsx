@@ -529,7 +529,7 @@ function Units() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select location" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white z-50">
                         <SelectItem value="any_location">
                           Any location
                         </SelectItem>
@@ -559,7 +559,7 @@ function Units() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select rooms" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white z-50">
                         <SelectItem value="any_rooms">Any number</SelectItem>
                         {roomOptions.map((room) => (
                           <SelectItem key={room} value={room}>
@@ -585,7 +585,7 @@ function Units() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white z-50">
                         <SelectItem value="any_type">Any type</SelectItem>
                         {unitTypes.map((type) => (
                           <SelectItem key={type} value={type}>
@@ -609,11 +609,12 @@ function Units() {
                       disabled={
                         isPending || loading || statusOptions.length === 0
                       }
+                      
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white z-50">
                         <SelectItem value="any_status">Any status</SelectItem>
                         {statusOptions.map((status) => (
                           <SelectItem key={status} value={status}>
