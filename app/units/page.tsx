@@ -151,7 +151,7 @@ function Units() {
     (params: Record<string, string>) => {
       if (!isMounted.current) return;
 
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams?.toString() || '');
 
       Object.entries(params).forEach(([key, value]) => {
         if (value) {
