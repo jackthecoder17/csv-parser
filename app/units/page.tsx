@@ -488,12 +488,12 @@ function Units() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <h1 className="text-3xl font-bold">Properties</h1>
 
-      <div className="grid gap-6">
+      <div className="flex flex-col gap-6 w-full">
         {/* Search and Filters */}
-        <Card>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Search & Filter</CardTitle>
             <CardDescription>
@@ -706,8 +706,8 @@ function Units() {
         </Card>
 
         {/* Results */}
-        <Card>
-          <CardHeader>
+        <Card className="w-full">
+          <CardHeader className="w-full">
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle>Properties</CardTitle>
@@ -731,7 +731,7 @@ function Units() {
               )}
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="w-full">
             {error ? (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -760,88 +760,88 @@ function Units() {
               </div>
             ) : (
               <ScrollArea className="w-full rounded-md border">
-                <div className="relative min-w-full">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[240px]">Unit Name</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Rooms</TableHead>
-                        <TableHead>Area (m²)</TableHead>
-                        <TableHead>Status</TableHead>
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className=" whitespace-nowrap w-[240px]">
+                        Unit Name
+                      </TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Rooms</TableHead>
+                      <TableHead>Area (m²)</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {properties.map((property, index) => (
+                      <TableRow key={getPropertyKey(property, index)}>
+                        <TableCell className="font-medium w-[240px] whitespace-nowrap">
+                          {property["Unit Name"] || (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {/* Make sure to check for both price fields */}
+                          {property["Unit Price"] !== undefined ||
+                          property["Final Total Unit Price"] !== undefined ? (
+                            `$${Number(
+                              property["Unit Price"] ||
+                                property["Final Total Unit Price"]
+                            ).toLocaleString()}`
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {property["Phase: Phase Name"] || (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {property["Unit Type"] || (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {property["Number of rooms"] !== undefined ? (
+                            property["Number of rooms"]
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {property["Unit Gross Area"] !== undefined ? (
+                            `${property["Unit Gross Area"]} m²`
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {property["Unit Status"] || (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {properties.map((property, index) => (
-                        <TableRow key={getPropertyKey(property, index)}>
-                          <TableCell className="font-medium">
-                            {property["Unit Name"] || (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {/* Make sure to check for both price fields */}
-                            {property["Unit Price"] !== undefined ||
-                            property["Final Total Unit Price"] !== undefined ? (
-                              `$${Number(
-                                property["Unit Price"] ||
-                                  property["Final Total Unit Price"]
-                              ).toLocaleString()}`
-                            ) : (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {property["Phase: Phase Name"] || (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {property["Unit Type"] || (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {property["Number of rooms"] !== undefined ? (
-                              property["Number of rooms"]
-                            ) : (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {property["Unit Gross Area"] !== undefined ? (
-                              `${property["Unit Gross Area"]} m²`
-                            ) : (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {property["Unit Status"] || (
-                              <span className="text-gray-400">N/A</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {loading && (
-                        <TableRow>
-                          <TableCell colSpan={5} className="h-24 text-center">
-                            <div className="flex items-center justify-center space-x-2">
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                              <span>Loading more...</span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                  <ScrollBar orientation="horizontal" />
-                </div>
+                    ))}
+                    {loading && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center">
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                            <span>Loading more...</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+                <ScrollBar orientation="horizontal" />
               </ScrollArea>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 w-full">
             <div className="flex w-full sm:w-auto justify-between gap-2">
               <Button
                 variant="outline"
@@ -890,7 +890,9 @@ export default function UnitsPage() {
   return (
     <DashboardLayout>
       <Suspense fallback={<Skeleton className="min-h-screen w-full" />}>
-        <Units />
+        <div className="w-full">
+          <Units />
+        </div>
       </Suspense>
     </DashboardLayout>
   );
