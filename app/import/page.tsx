@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import DashboardLayout from "@/components/dashboard/layout";
 import {
   Card,
@@ -15,22 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parseFile, PropertyUnit, ParseResult } from "@/lib/csv-parser";
-import { AlertCircle, Check, Filter } from "lucide-react";
+import { AlertCircle, Check, } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea , ScrollBar} from "@/components/ui/scroll-area";
+// Add missing imports for Table components
 import {
   Table,
   TableBody,
@@ -40,7 +28,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+// Add missing import for ScrollArea and ScrollBar
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { saveImportedProperties } from "@/app/actions/property-actions";
+import FieldSelectorDialog from "@/components/import/field-selector-dialog";
 
 export default function ImportPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -105,7 +96,7 @@ export default function ImportPage() {
       // Simply select the first few fields (max 5) for initial display
       const initialFields = result.fields.slice(0, 5);
       setSelectedFields(initialFields);
-      console.log(result);
+      
       // Show the fields selection dialog
       setShowFieldsDialog(true);
     } catch (err: any) {
@@ -155,115 +146,10 @@ export default function ImportPage() {
     }
   };
 
-  const toggleField = (field: string) => {
-    setSelectedFields((prev) => {
-      if (prev.includes(field)) {
-        return prev.filter((f) => f !== field);
-      } else {
-        return [...prev, field];
-      }
-    });
-  };
-
-  const handleSelectAllFields = () => {
-    if (parseResult?.fields) {
-      setSelectedFields(parseResult.fields);
-    }
-  };
-
-  const handleClearFieldSelection = () => {
-    setSelectedFields([]);
-  };
-
-  const DialogFieldSelector = () => (
-    <Dialog open={showFieldsDialog} onOpenChange={setShowFieldsDialog}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Filter className="h-4 w-4" />
-          Select Fields ({selectedFields.length})
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Select Fields to Display</DialogTitle>
-          <DialogDescription>
-            {parseResult?.fields?.length || 0} fields available. Choose which
-            ones to display in the preview.
-          </DialogDescription>
-        </DialogHeader>
-
-        {parseResult && (
-          <div className="py-4">
-            <div className="flex justify-between mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSelectAllFields}
-              >
-                Select All ({parseResult.fields.length})
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClearFieldSelection}
-              >
-                Clear Selection
-              </Button>
-            </div>
-
-            <ScrollArea className="h-[300px] pr-4">
-              <div className="flex flex-wrap gap-3">
-                {parseResult.fields.map((field) => {
-                  const fieldInfo = parseResult.detectedFields[field] || {
-                    type: "unknown",
-                    label: field,
-                    example: null,
-                  };
-
-                  return (
-                    <div
-                      key={field}
-                      className="flex flex-1 items-start space-x-2 p-2 border rounded hover:bg-gray-50"
-                    >
-                      <Checkbox
-                        id={`field-${field}`}
-                        checked={selectedFields.includes(field)}
-                        onCheckedChange={() => toggleField(field)}
-                      />
-                      <div className="grid gap-1.5">
-                        <Label
-                          htmlFor={`field-${field}`}
-                          className="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {fieldInfo.label || field}
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {fieldInfo.type || "unknown"}
-                          </Badge>
-                          <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                            Ex:{" "}
-                            {fieldInfo.example !== null &&
-                            fieldInfo.example !== undefined
-                              ? String(fieldInfo.example).substring(0, 20)
-                              : "-"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-          </div>
-        )}
-
-        <DialogFooter>
-          <Button onClick={() => setShowFieldsDialog(false)}>Done</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+  // Callbacks for field selection - wrapped in useCallback to prevent recreation
+  const handleFieldSelectionChange = useCallback((newSelectedFields: string[]) => {
+    setSelectedFields(newSelectedFields);
+  }, []);
 
   return (
     <DashboardLayout>
@@ -329,7 +215,14 @@ export default function ImportPage() {
                   </CardDescription>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <DialogFieldSelector />
+                  {/* Use the extracted component */}
+                  <FieldSelectorDialog 
+                    open={showFieldsDialog}
+                    onOpenChange={setShowFieldsDialog}
+                    parseResult={parseResult}
+                    selectedFields={selectedFields}
+                    onSelectionChange={handleFieldSelectionChange}
+                  />
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col">
