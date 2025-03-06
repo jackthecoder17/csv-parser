@@ -60,3 +60,33 @@ export function filterProperties(
     return true;
   });
 }
+
+/**
+ * Format currency with proper symbols and separators
+ */
+export const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+/**
+ * Save a PDF to the client's device
+ */
+export const savePdf = (pdf: any, filename: string): void => {
+  pdf.save(filename);
+};
+
+/**
+ * Generate a filename with date for reports
+ */
+export const generateReportFilename = (prefix: string = 'property-report'): string => {
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+  const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
+  
+  return `${prefix}-${dateStr}-${timeStr}.pdf`;
+};

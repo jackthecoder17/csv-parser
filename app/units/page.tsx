@@ -42,6 +42,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { AlertCircle, Search, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { debounce } from "lodash";
+import GenerateReportButton from "@/components/pdf/generate-report-button";
 
 // Prevent hydration issues with client-only components
 const ClientOnlySlider = ({
@@ -498,6 +499,9 @@ function Units() {
     [handleRoomsChange]
   );
 
+  // State for PDF generation
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
   return (
     <div className="space-y-6 w-full">
       <h1 className="text-3xl font-bold">Properties</h1>
@@ -734,18 +738,29 @@ function Units() {
                     : `Showing ${properties.length} of ${total} properties`}
                 </CardDescription>
               </div>
-              {error && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleRetry}
-                  disabled={loading}
-                  className="flex items-center gap-1"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Retry
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {/* Add PDF Report Button */}
+                {properties.length > 0 && !error && (
+                  <GenerateReportButton
+                    properties={properties}
+                    isGenerating={isGeneratingPdf}
+                    onGenerateStart={() => setIsGeneratingPdf(true)}
+                    onGenerateEnd={() => setIsGeneratingPdf(false)}
+                  />
+                )}
+                {error && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleRetry}
+                    disabled={loading}
+                    className="flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Retry
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="w-full">
