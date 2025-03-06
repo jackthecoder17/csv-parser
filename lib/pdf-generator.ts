@@ -4,7 +4,7 @@ import { PropertyUnit } from './csv-parser';
 import { formatCurrency } from './utils';
 
 // Default image placeholder
-const DEFAULT_IMAGE_URL = '/images/property-placeholder.jpg';
+const DEFAULT_IMAGE_URL = '/images/placeholder.jpg';
 
 /**
  * Generate a professional PDF report for a list of properties
