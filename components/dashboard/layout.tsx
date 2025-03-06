@@ -108,7 +108,7 @@ export default function DashboardLayout({
   }, [mobileOpen]);
 
   return (
-    <div className="flex min-h-screen relative">
+    <div className="flex flex-row min-h-screen relative">
       {/* Backdrop overlay */}
       {mobileOpen && (
         <div 
@@ -119,16 +119,16 @@ export default function DashboardLayout({
       )}
 
       {/* Sidebar */}
-      <div ref={sidebarRef}>
+      <div ref={sidebarRef} className="md:w-[30%] lg:w-[15%] w-full">
         <Sidebar 
-          className="w-64 shadow-sm" 
+          className="w-full shadow-sm" 
           mobileOpen={mobileOpen} 
           setMobileOpen={setMobileOpen}
         />
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col w-full">
+      <div className="flex-1 flex flex-col w-full md:w-[70%] lg:w-[85%]">
         <header className="h-14 flex items-center gap-4 border-b bg-muted px-6 sticky top-0 z-20 md:hidden w-full">
           <Button 
             variant="outline" 

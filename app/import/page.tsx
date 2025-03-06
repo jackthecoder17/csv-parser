@@ -267,13 +267,13 @@ export default function ImportPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 flex flex-col w-full">
         <h1 className="text-3xl font-bold">Import Properties</h1>
         <p className="text-muted-foreground">
           Upload a CSV or Excel file to import property units.
         </p>
 
-        <Card className="max-w-full overflow-x-auto">
+        <Card className="max-w-full overflow-x-auto flex flex-col">
           <CardHeader>
             <CardTitle>Upload File</CardTitle>
             <CardDescription>
@@ -332,7 +332,7 @@ export default function ImportPage() {
                   <DialogFieldSelector />
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col">
                 {selectedFields.length === 0 ? (
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
@@ -343,7 +343,7 @@ export default function ImportPage() {
                     </AlertDescription>
                   </Alert>
                 ) : (
-                  <Tabs defaultValue="table" className="w-full">
+                  <Tabs defaultValue="table" className="w-full flex flex-col">
                     <TabsList>
                       <TabsTrigger value="table">Table View</TabsTrigger>
                       <TabsTrigger value="json">JSON View</TabsTrigger>
